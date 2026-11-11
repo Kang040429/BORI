@@ -193,3 +193,15 @@ model.train(
 # ==========================================
 shutil.copy(f'{BASE_PATH}/chair_detect/exp1/weights/best.pt', MODEL_OUTPUT)
 print(f"[6] 모델 저장 완료: {MODEL_OUTPUT}")
+
+
+# ==========================================
+# 7. (선택) Google Drive에 저장
+#    저장 위치 결정 후 주석 해제
+# ==========================================
+# from google.colab import drive
+# drive.mount('/content/drive')
+# import os
+# os.makedirs('/content/drive/MyDrive/BORI', exist_ok=True)
+# shutil.copy(MODEL_OUTPUT, '/content/drive/MyDrive/BORI/best.pt')
+# print("Drive 저장 완료!")
