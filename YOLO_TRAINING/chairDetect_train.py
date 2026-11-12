@@ -56,8 +56,8 @@ print(f"[환경] {ENV}")
 # ==========================================
 if ENV == 'kaggle':
     BASE_PATH = '/kaggle/working'
-    COCO_IMAGE_PATH = '/kaggle/input/coco-2017-dataset/coco2017/train2017'
-    ANNOTATION_PATH = '/kaggle/input/coco-2017-dataset/coco2017/annotations/instances_train2017.json'
+    COCO_IMAGE_PATH = '/kaggle/input/datasets/awsaf49/coco-2017-dataset/coco2017/train2017'
+    ANNOTATION_PATH = '/kaggle/input/datasets/awsaf49/coco-2017-dataset/coco2017/annotations/instances_train2017.json'
     USE_LOCAL_IMAGES = True  # 로컬 복사 방식
 
 elif ENV == 'colab':
