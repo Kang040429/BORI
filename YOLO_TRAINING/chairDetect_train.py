@@ -191,6 +191,10 @@ model.train(
 # ==========================================
 # 6. 모델 저장
 # ==========================================
+from datetime import datetime
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+MODEL_OUTPUT = f'{BASE_PATH}/chair_detect_{timestamp}.pt'
+
 shutil.copy(f'{BASE_PATH}/chair_detect/exp1/weights/best.pt', MODEL_OUTPUT)
 print(f"[6] 모델 저장 완료: {MODEL_OUTPUT}")
 
