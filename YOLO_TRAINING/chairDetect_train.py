@@ -101,7 +101,7 @@ if VIDEO_PATH is None:
                     break
     elif ENV == 'colab':
         # Google Drive 마운트 후 경로
-        drive_path = '/content/drive/MyDrive/BORI/chair_video.mp4'
+        drive_path = '/content/drive/MyDrive/20261117_002118.mp4'
         if os.path.exists(drive_path):
             VIDEO_PATH = drive_path
             print(f"[영상] Drive에서 감지: {VIDEO_PATH}")
