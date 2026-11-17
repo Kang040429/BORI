@@ -90,21 +90,45 @@ YAML_PATH    = f'{BASE_PATH}/chair_coco.yaml'
 IMG_SIZE     = 640
 
 # 영상 경로 자동 설정 (--video 없을 때)
+GITHUB_VIDEO_URL = 'https://raw.githubusercontent.com/Kang040429/BORI/main/YOLO_TRAINING/data/chair_video.mp4'
+
 if VIDEO_PATH is None:
     if ENV == 'kaggle':
-        # Kaggle Dataset으로 올린 경우 자동 탐색
+        # 1순위: Kaggle Dataset으로 올린 경우 자동 탐색
         for root, dirs, files in os.walk('/kaggle/input'):
             for f in files:
                 if f.endswith('.mp4'):
                     VIDEO_PATH = os.path.join(root, f)
-                    print(f"[영상] 자동 감지: {VIDEO_PATH}")
+                    print(f"[영상] Kaggle Dataset에서 감지: {VIDEO_PATH}")
                     break
+        # 2순위: GitHub에서 다운로드
+        if VIDEO_PATH is None:
+            dl_path = '/kaggle/working/chair_video.mp4'
+            print(f"[영상] GitHub에서 다운로드 중...")
+            import urllib.request
+            try:
+                urllib.request.urlretrieve(GITHUB_VIDEO_URL, dl_path)
+                VIDEO_PATH = dl_path
+                print(f"[영상] 다운로드 완료: {VIDEO_PATH}")
+            except Exception as e:
+                print(f"[영상] 다운로드 실패: {e} → 영상 없이 진행")
     elif ENV == 'colab':
-        # Google Drive 마운트 후 경로
+        # 1순위: Google Drive
         drive_path = '/content/drive/MyDrive/20261117_002118.mp4'
         if os.path.exists(drive_path):
             VIDEO_PATH = drive_path
             print(f"[영상] Drive에서 감지: {VIDEO_PATH}")
+        # 2순위: GitHub에서 다운로드
+        else:
+            dl_path = '/content/chair_video.mp4'
+            print(f"[영상] GitHub에서 다운로드 중...")
+            import urllib.request
+            try:
+                urllib.request.urlretrieve(GITHUB_VIDEO_URL, dl_path)
+                VIDEO_PATH = dl_path
+                print(f"[영상] 다운로드 완료: {VIDEO_PATH}")
+            except Exception as e:
+                print(f"[영상] 다운로드 실패: {e} → 영상 없이 진행")
 
 # 사전 학습 모델 경로 자동 설정 (--pretrained 없을 때)
 if PRETRAINED is None:
