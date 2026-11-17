@@ -90,7 +90,7 @@ YAML_PATH    = f'{BASE_PATH}/chair_coco.yaml'
 IMG_SIZE     = 640
 
 # 영상 경로 자동 설정 (--video 없을 때)
-GITHUB_VIDEO_URL = 'https://raw.githubusercontent.com/Kang040429/BORI/main/YOLO_TRAINING/data/chair_video.mp4'
+GITHUB_VIDEO_URL = 'https://media.githubusercontent.com/media/Kang040429/BORI/main/YOLO_TRAINING/data/chair_video.mp4'
 
 if VIDEO_PATH is None:
     if ENV == 'kaggle':
