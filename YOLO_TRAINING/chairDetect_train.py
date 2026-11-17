@@ -183,7 +183,12 @@ al_total_imgs, al_total_lbls = 0, 0
 for part in range(1, 5):
     al_zip = f'{BASE_PATH}/autolabel_vid3_part{part}.zip'
     url    = f'{GITHUB_AUTOLABEL_BASE}/autolabel_vid3_part{part}.zip'
-    ret    = os.system(f'wget -q -O {al_zip} "{url}"')
+    # 이미 다운된 파일이 있으면 스킵 (kaggle_run.py에서 미리 받아둔 경우)
+    if os.path.exists(al_zip) and os.path.getsize(al_zip) > 1000:
+        print(f"    part{part} 이미 존재, 다운 스킵")
+        ret = 0
+    else:
+        ret = os.system(f'wget -q -O {al_zip} "{url}"')
 
     if ret == 0 and os.path.exists(al_zip) and os.path.getsize(al_zip) > 1000:
         al_extract = f'{BASE_PATH}/autolabel_vid3_part{part}'
