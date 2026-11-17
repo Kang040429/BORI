@@ -297,14 +297,14 @@ print("[4] yaml 생성 완료!")
 print("[5] 학습 시작...")
 
 model = YOLO('yolov8s.pt')
-model.train(
+results = model.train(
     data=YAML_PATH,
     epochs=EPOCHS,
     imgsz=IMG_SIZE,
     batch=BATCH_SIZE,
     device=DEVICE,
     project=f'{BASE_PATH}/chair_detect',
-    name='exp1',
+    name='exp',
 )
 
 
@@ -314,7 +314,12 @@ model.train(
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 MODEL_OUTPUT = f'{BASE_PATH}/chair_detect_{timestamp}.pt'
 
-shutil.copy(f'{BASE_PATH}/chair_detect/exp1/weights/best.pt', MODEL_OUTPUT)
+# 실제 저장된 경로는 results.save_dir로 확인
+save_dir = str(results.save_dir)
+best_pt = os.path.join(save_dir, 'weights', 'best.pt')
+print(f"[6] 학습 결과 경로: {save_dir}")
+
+shutil.copy(best_pt, MODEL_OUTPUT)
 print(f"[6] 모델 저장 완료: {MODEL_OUTPUT}")
 
 
