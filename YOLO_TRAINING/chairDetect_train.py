@@ -254,6 +254,41 @@ else:
 
 
 # ==========================================
+# 2.7. Roboflow 라벨 데이터 추가
+#      GitHub에서 chair.v1i.yolov8.zip 다운로드 후 병합
+# ==========================================
+GITHUB_ROBOFLOW_URL = 'https://raw.githubusercontent.com/Kang040429/BORI/main/YOLO_TRAINING/chair.v1i.yolov8.zip'
+
+print("[2.7] Roboflow 라벨 데이터 다운로드 중...")
+rf_zip = f'{BASE_PATH}/roboflow_chairs.zip'
+ret = os.system(f'wget -q -O {rf_zip} "{GITHUB_ROBOFLOW_URL}"')
+
+if ret == 0 and os.path.exists(rf_zip) and os.path.getsize(rf_zip) > 1000:
+    import zipfile
+    rf_extract = f'{BASE_PATH}/roboflow_extract'
+    os.makedirs(rf_extract, exist_ok=True)
+    with zipfile.ZipFile(rf_zip, 'r') as z:
+        z.extractall(rf_extract)
+
+    # train/images, train/labels 찾아서 복사
+    import glob as _glob2
+    rf_imgs  = _glob2.glob(f'{rf_extract}/**/images/train/*.jpg', recursive=True)
+    rf_imgs += _glob2.glob(f'{rf_extract}/**/images/train/*.png', recursive=True)
+    rf_lbls  = _glob2.glob(f'{rf_extract}/**/labels/train/*.txt', recursive=True)
+
+    for src in rf_imgs:
+        dst = f"{DATASET_PATH}/images/train/rf_{os.path.basename(src)}"
+        shutil.copy(src, dst)
+    for src in rf_lbls:
+        dst = f"{DATASET_PATH}/labels/train/rf_{os.path.basename(src)}"
+        shutil.copy(src, dst)
+
+    print(f"    Roboflow 이미지 {len(rf_imgs)}장, 라벨 {len(rf_lbls)}개 추가 완료")
+else:
+    print("    [주의] Roboflow zip 다운로드 실패 → 스킵")
+
+
+# ==========================================
 # 3. Val 분리
 # ==========================================
 print("[3] val 분리 중...")
