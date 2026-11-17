@@ -105,13 +105,12 @@ if VIDEO_PATH is None:
         if VIDEO_PATH is None:
             dl_path = '/kaggle/working/chair_video.mp4'
             print(f"[영상] GitHub에서 다운로드 중...")
-            import urllib.request
-            try:
-                urllib.request.urlretrieve(GITHUB_VIDEO_URL, dl_path)
+            ret = os.system(f'wget -q -O {dl_path} "{GITHUB_VIDEO_URL}"')
+            if ret == 0 and os.path.exists(dl_path) and os.path.getsize(dl_path) > 10000:
                 VIDEO_PATH = dl_path
                 print(f"[영상] 다운로드 완료: {VIDEO_PATH}")
-            except Exception as e:
-                print(f"[영상] 다운로드 실패: {e} → 영상 없이 진행")
+            else:
+                print(f"[영상] 다운로드 실패 → 영상 없이 진행")
     elif ENV == 'colab':
         # 1순위: Google Drive
         drive_path = '/content/drive/MyDrive/20261117_002118.mp4'
@@ -122,13 +121,12 @@ if VIDEO_PATH is None:
         else:
             dl_path = '/content/chair_video.mp4'
             print(f"[영상] GitHub에서 다운로드 중...")
-            import urllib.request
-            try:
-                urllib.request.urlretrieve(GITHUB_VIDEO_URL, dl_path)
+            ret = os.system(f'wget -q -O {dl_path} "{GITHUB_VIDEO_URL}"')
+            if ret == 0 and os.path.exists(dl_path) and os.path.getsize(dl_path) > 10000:
                 VIDEO_PATH = dl_path
                 print(f"[영상] 다운로드 완료: {VIDEO_PATH}")
-            except Exception as e:
-                print(f"[영상] 다운로드 실패: {e} → 영상 없이 진행")
+            else:
+                print(f"[영상] 다운로드 실패 → 영상 없이 진행")
 
 # 사전 학습 모델 경로 자동 설정 (--pretrained 없을 때)
 if PRETRAINED is None:
