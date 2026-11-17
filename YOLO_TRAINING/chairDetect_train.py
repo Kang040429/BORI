@@ -230,13 +230,13 @@ if VIDEO_PATH and os.path.exists(VIDEO_PATH):
         for i in range(saved):
             fname = f"custom_frame_{i:05d}.jpg"
             img_path = f"{DATASET_PATH}/images/train/{fname}"
+            if not os.path.exists(img_path):
+                continue
             results = label_model.predict(img_path, conf=CONF_THRESH, verbose=False)
             boxes = results[0].boxes
             if len(boxes) == 0:
-                # 의자 없으면 이미지/라벨 둘 다 제거
                 os.remove(img_path)
                 continue
-            H, W = results[0].orig_shape
             lbl_path = f"{DATASET_PATH}/labels/train/{fname.replace('.jpg', '.txt')}"
             with open(lbl_path, 'w') as f:
                 for box in boxes.xywhn:
@@ -264,17 +264,14 @@ rf_zip = f'{BASE_PATH}/roboflow_chairs.zip'
 ret = os.system(f'wget -q -O {rf_zip} "{GITHUB_ROBOFLOW_URL}"')
 
 if ret == 0 and os.path.exists(rf_zip) and os.path.getsize(rf_zip) > 1000:
-    import zipfile
+    import glob as _glob2
     rf_extract = f'{BASE_PATH}/roboflow_extract'
     os.makedirs(rf_extract, exist_ok=True)
     with zipfile.ZipFile(rf_zip, 'r') as z:
         z.extractall(rf_extract)
 
-    # train/images, train/labels 찾아서 복사 (경로 구조 무관하게 탐색)
-    import glob as _glob2
     rf_imgs  = _glob2.glob(f'{rf_extract}/**/*.jpg', recursive=True)
     rf_imgs += _glob2.glob(f'{rf_extract}/**/*.png', recursive=True)
-    # valid/test 제외하고 train만
     rf_imgs = [p for p in rf_imgs if 'valid' not in p and 'test' not in p]
     rf_lbls  = _glob2.glob(f'{rf_extract}/**/*.txt', recursive=True)
     rf_lbls = [p for p in rf_lbls if 'valid' not in p and 'test' not in p and 'data.yaml' not in p]
@@ -289,6 +286,48 @@ if ret == 0 and os.path.exists(rf_zip) and os.path.getsize(rf_zip) > 1000:
     print(f"    Roboflow 이미지 {len(rf_imgs)}장, 라벨 {len(rf_lbls)}개 추가 완료")
 else:
     print("    [주의] Roboflow zip 다운로드 실패 → 스킵")
+
+
+# ==========================================
+# 2.8. 오토라벨 영상 데이터 추가
+#      GitHub에서 autolabel_vid3_part1~4.zip 다운로드 후 병합
+# ==========================================
+GITHUB_AUTOLABEL_BASE = 'https://media.githubusercontent.com/media/Kang040429/BORI/main/YOLO_TRAINING/autolabel_vid3'
+
+print("[2.8] 오토라벨 데이터 다운로드 중...")
+import glob as _glob3
+
+al_total_imgs, al_total_lbls = 0, 0
+
+for part in range(1, 5):
+    al_zip = f'{BASE_PATH}/autolabel_vid3_part{part}.zip'
+    url = f'{GITHUB_AUTOLABEL_BASE}/autolabel_vid3_part{part}.zip'
+    ret = os.system(f'wget -q -O {al_zip} "{url}"')
+
+    if ret == 0 and os.path.exists(al_zip) and os.path.getsize(al_zip) > 1000:
+        al_extract = f'{BASE_PATH}/autolabel_vid3_part{part}'
+        os.makedirs(al_extract, exist_ok=True)
+        with zipfile.ZipFile(al_zip, 'r') as z:
+            z.extractall(al_extract)
+
+        al_imgs  = _glob3.glob(f'{al_extract}/**/*.jpg', recursive=True)
+        al_imgs += _glob3.glob(f'{al_extract}/**/*.png', recursive=True)
+        al_lbls  = _glob3.glob(f'{al_extract}/**/*.txt', recursive=True)
+
+        for src in al_imgs:
+            dst = f"{DATASET_PATH}/images/train/al_{os.path.basename(src)}"
+            shutil.copy(src, dst)
+        for src in al_lbls:
+            dst = f"{DATASET_PATH}/labels/train/al_{os.path.basename(src)}"
+            shutil.copy(src, dst)
+
+        al_total_imgs += len(al_imgs)
+        al_total_lbls += len(al_lbls)
+        print(f"    part{part} 완료 ({len(al_imgs)}장)")
+    else:
+        print(f"    [주의] part{part} 다운로드 실패 → 스킵")
+
+print(f"    오토라벨 총 {al_total_imgs}장, 라벨 {al_total_lbls}개 추가 완료")
 
 
 # ==========================================
@@ -350,7 +389,6 @@ results = model.train(
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 MODEL_OUTPUT = f'{BASE_PATH}/chair_detect_{timestamp}.pt'
 
-# 실제 저장된 경로는 results.save_dir로 확인
 save_dir = str(results.save_dir)
 best_pt = os.path.join(save_dir, 'weights', 'best.pt')
 print(f"[6] 학습 결과 경로: {save_dir}")
